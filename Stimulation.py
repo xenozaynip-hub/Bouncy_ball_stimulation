@@ -2,6 +2,8 @@ import pygame
 
 pygame.init()
 
+LINE_X = 999
+LINE_Y = 796
 WITH = 1000
 HEIGHT = 800
 screen = pygame.display.set_mode((WITH, HEIGHT))
@@ -63,8 +65,8 @@ class Ball:
             self.x_pos += self.velocity_x
             self.y_pos += self.velocity_y
         else:
-            self.x_pos = mouse[0]
-            self.y_pos = mouse [1]
+            self.x_pos = min(mouse[0], LINE_X - self.radius)
+            self.y_pos = min(mouse[1], LINE_Y - self.radius)
 
     def check_select(self, pos):
         self.select = False
@@ -91,10 +93,11 @@ def calc_motion_vector():
 
     return x_velocity, y_velocity
 
-ball1 = Ball(50, 50,30, (104, 0, 0), 100, 0, 0, 0.9,1,0.02)
-ball2 = Ball(500, 500,50, (50, 0, 0), 300, 0, 0, 0.9,2,0.03)
-ball3 = Ball(200, 200,40, (150, 0, 0), 200, 0, 0, 0.9,3,0.04)
-ball_list = [ball1, ball2, ball3]
+ball1 = Ball(50, 50,90, (104, 0, 0), 500, 0, 0, 0.9,1,0.02)
+ball2 = Ball(500, 500,50, (50, 0, 0), 300, 0, 0, 0.7,2,0.03)
+ball3 = Ball(200, 200,40, (150, 0, 0), 200, 0, 0, 0.5,3,0.04)
+ball4 = Ball(300, 300,30, (200, 0, 0), 100, 0, 0, 1,4,0.05)
+ball_list = [ball1, ball2, ball3, ball4]
 
 #main game loop
 run = True
@@ -111,12 +114,15 @@ while run:
     ball1.draw()
     ball2.draw()
     ball3.draw()
+    ball4.draw()
     ball1.update_position(mouse_coords)
     ball2.update_position(mouse_coords)
     ball3.update_position(mouse_coords)
+    ball4.update_position(mouse_coords)
     ball1.velocity_y = ball1.check_gravity()
     ball2.velocity_y = ball2.check_gravity()
     ball3.velocity_y = ball3.check_gravity()
+    ball4.velocity_y = ball4.check_gravity()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -124,7 +130,7 @@ while run:
 
         if event.type == pygame.MOUSEBUTTONDOWN:        
             if event.button == 1:
-                if ball1.check_select(event.pos) or ball2.check_select(event.pos) or ball3.check_select(event.pos):
+                if ball1.check_select(event.pos) or ball2.check_select(event.pos) or ball3.check_select(event.pos) or ball4.check_select(event.pos):
                     active_select = True
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
