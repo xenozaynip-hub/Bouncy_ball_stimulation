@@ -14,6 +14,8 @@ wall_thickness = 10
 gravity = 0.5
 bounce_stop = 0.3
 
+mouse_trajectory = []
+
 class Ball:
     def __init__(self, x_pos, y_pos, radius, color, mass, velocity_x, velocity_y, retention,id):
         self.x_pos = x_pos
@@ -33,15 +35,18 @@ class Ball:
         self.circle = pygame.draw.circle(screen, self.color, (int(self.x_pos), int(self.y_pos)), self.radius)
     
     def check_gravity(self):
-        if self.y_pos < HEIGHT - self.radius - (wall_thickness/2):
-            self.velocity_y += gravity
-        else:
-            if self.velocity_y > bounce_stop:
-                self.velocity_y = self.velocity_y * -1 * self.retention
+        if not self.select:
+            if self.y_pos < HEIGHT - self.radius - (wall_thickness/2):
+                self.velocity_y += gravity
             else:
-                if abs(self.velocity_y) <= bounce_stop:
-                    self.velocity_y = 0
-
+                if self.velocity_y > bounce_stop:
+                    self.velocity_y = self.velocity_y * -1 * self.retention
+                else:
+                    if abs(self.velocity_y) <= bounce_stop:
+                        self.velocity_y = 0
+        else:
+            self.velocity_y = y_push
+            self.velocity_x = x_push
         return self.velocity_y
     
     def update_position(self, mouse):
@@ -69,6 +74,15 @@ def draw_walls():
     wall_list = [left, right, top, bottom]
     return wall_list
 
+def calc_motion_vector():
+    x_velocity = 0
+    y_velocity = 0
+    if len(mouse_trajectory) > 10:
+        x_velocity = (mouse_trajectory[-1][0] - mouse_trajectory[0][0]) / len(mouse_trajectory)
+        y_velocity = (mouse_trajectory[-1][1] - mouse_trajectory[0][1]) / len(mouse_trajectory)
+
+    return x_velocity, y_velocity
+
 ball1 = Ball(50, 50,30, (104, 0, 0), 100, 0, 0, 0.9,1)
 ball2 = Ball(500, 500,50, (50, 0, 0), 300, 0, 0, 0.9,2)
 ball3 = Ball(200, 200,40, (150, 0, 0), 200, 0, 0, 0.9,3)
@@ -80,6 +94,10 @@ while run:
     timer.tick(fps)
     screen.fill((0, 0, 0))
     mouse_coords = pygame.mouse.get_pos()
+    mouse_trajectory.append(mouse_coords)
+    if len(mouse_trajectory) > 20:
+        mouse_trajectory.pop(0)
+    x_push, y_push = calc_motion_vector()
 
     walls = draw_walls()
     ball1.draw()
